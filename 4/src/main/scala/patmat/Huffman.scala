@@ -120,10 +120,7 @@ object Huffman {
   /**
    * Checks whether the list `trees` contains only one single code tree.
    */
-  def singleton(trees: List[CodeTree]): Boolean = {
-    if (trees.length == 2) true
-    else false
-  }
+  def singleton(trees: List[CodeTree]): Boolean = trees.length == 1
 
   /**
    * The parameter `trees` of this function is a list of code trees ordered
@@ -144,15 +141,8 @@ object Huffman {
         if (ele.weight < head.weight) ele :: head :: tail
         else head :: sort(ele, tail)
     }
-    if (trees.length < 3) trees
-    else {
-      trees match {
-        case (first: Leaf) :: (second: Leaf) :: tail => combine(sort(new Fork(first, second, List(first.char, second.char), first.weight + second.weight), tail))
-        case (first: Leaf) :: (second: Fork) :: tail => combine(sort(new Fork(first, second, first.char :: second.chars, first.weight + second.weight), tail))
-        case (first: Fork) :: (second: Leaf) :: tail => combine(sort(new Fork(first, second, first.chars :+ second.char, first.weight + second.weight), tail))
-        case (first: Fork) :: (second: Fork) :: tail => combine(sort(new Fork(first, second, first.chars ::: second.chars, first.weight + second.weight), tail))
-      }
-    }
+    if (trees.length < 2) trees
+    else combine(sort(makeCodeTree(trees(0), trees(1)), trees.drop(2)))
   }
 
   /**
@@ -172,9 +162,9 @@ object Huffman {
    *    the example invocation. Also define the return type of the `until` function.
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
-  def until(singleton: List[CodeTree] => Boolean, combine: List[CodeTree] => List[CodeTree])(trees: List[CodeTree]): List[CodeTree] = {
-    if (singleton(trees)) trees
-    else until(singleton, combine)(combine(trees))
+  def until(isSingleCodeTree: List[CodeTree] => Boolean, combine: List[CodeTree] => List[CodeTree])(trees: List[CodeTree]): List[CodeTree] = {
+    if (isSingleCodeTree(trees)) trees
+    else until(isSingleCodeTree, combine)(combine(trees))
   }
 
   /**
@@ -185,13 +175,7 @@ object Huffman {
    */
   def createCodeTree(chars: List[Char]): CodeTree = {
     val list = combine(makeOrderedLeafList(times(chars)))
-    val single = until(singleton, combine)(list)
-    single match {
-      case (first: Leaf) :: (second: Leaf) :: tail => new Fork(first, second, List(first.char, second.char), first.weight + second.weight)
-      case (first: Leaf) :: (second: Fork) :: tail => new Fork(first, second, second.chars :+ first.char, first.weight + second.weight)
-      case (first: Fork) :: (second: Leaf) :: tail => new Fork(first, second, first.chars :+ second.char, first.weight + second.weight)
-      case (first: Fork) :: (second: Fork) :: tail => new Fork(first, second, first.chars ::: second.chars, first.weight + second.weight)
-    }
+    until(singleton, combine)(list)(0)
   }
 
 
