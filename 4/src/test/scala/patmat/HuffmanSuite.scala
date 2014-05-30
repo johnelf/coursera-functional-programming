@@ -43,18 +43,14 @@ class HuffmanSuite extends FunSuite {
   }
 
   test("combine of some leaf list") {
-    val leafList = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
-    assert(combine(leafList) === List(Fork(Fork(Leaf('e',1),Leaf('t',2),List('e', 't'),3), Leaf('x',4), List('e', 't', 'x'), 7)))
+    val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
+    assert(combine(leaflist) === List(Fork(Leaf('e',1),Leaf('t',2),List('e', 't'),3), Leaf('x',4)))
   }
 
-  test("combine of some big leaf list") {
-    val leafList = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4), Leaf('y', 5))
-    assert(combine(leafList) === List(Fork(Leaf('y', 5), Fork(Fork(Leaf('e', 1), Leaf('t', 2), List('e', 't'), 3), Leaf('x', 4), List('e', 't', 'x'), 7), List('y', 'e', 't', 'x'), 12)))
-  }
-
-  test("create code tree from arbitary list") {
-    val chars = List('a', 'a', 'a', 'a', 'b', 'b', 'b', 'b', 'b', 'c', 'd', 'd')
-    assert(createCodeTree(chars) === Fork(Leaf('b', 5), Fork(Fork(Leaf('c', 1), Leaf('d', 2), List('c', 'd'), 3), Leaf('a', 4), List('c', 'd', 'a'), 7), List('b', 'c', 'd', 'a'), 12))
+  test("decode should be successful") {
+    new TestTrees {
+      assert(decode(t2, List(0, 0, 0, 1, 1)) === List('a', 'b', 'd'))
+    }
   }
 
   test("encode a short text should be correct") {
@@ -69,9 +65,4 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
-  test("decode and encode a very short text should be identity") {
-    new TestTrees {
-      assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
-    }
-  }
 }
