@@ -65,12 +65,6 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
-  test("test for convert huffman tree") {
-    new TestTrees {
-      assert(convert(t1) == List(('a', List(0)), ('b', List(1))))
-    }
-  }
-
   test("test for quickEncode") {
     new TestTrees {
       assert(quickEncode(t2)(List('a', 'b', 'd')) == List(0, 0, 0, 1, 1))
