@@ -134,32 +134,24 @@ object Huffman {
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
    */
-  def combine(trees: List[CodeTree]): List[CodeTree] =
-    if(trees.size < 2) trees
-    else (fork(trees.head, trees.tail.head) :: trees.drop(2))
-      .sortWith{
-      case (Leaf(_,weight1), Leaf(_,weight2)) => weight1 < weight2
-      case (Leaf(_,weight1), Fork(_,_,_,weight2)) => weight1 < weight2
-      case (Fork(_,_,_,weight1), Leaf(_,weight2)) => weight1 < weight2
-      case (Fork(_,_,_,weight1), Fork(_,_,_,weight2)) => weight1 < weight2
-    }
+  def sort(ele: Fork, list: List[CodeTree]): List[CodeTree] = (ele :: list).sortWith {
+    case (Leaf(_, weight1), Leaf(_, weight2)) => weight1 < weight2
+    case (Leaf(_, weight1), Fork(_, _, _, weight2)) => weight1 < weight2
+    case (Fork(_, _, _, weight1), Leaf(_, weight2)) => weight1 < weight2
+    case (Fork(_, _, _, weight1), Fork(_, _, _, weight2)) => weight1 < weight2
+  }
 
   def fork(first: CodeTree, second: CodeTree): Fork = (first, second) match {
     case (Leaf(char1, weight1), Leaf(char2, weight2)) => new Fork(first, second, List(char1, char2), weight1 + weight2)
-    case (Leaf(char1, weight1), Fork(_,_,chars2, weight2)) => new Fork(first, second, char1 :: chars2, weight1 + weight2)
-    case (Fork(_,_,chars1, weight1), Leaf(char2, weight2)) => new Fork(first, second, char2 :: chars1, weight1 + weight2)
-    case (Fork(_,_,chars1, weight1), Fork(_,_,chars2, weight2)) => new Fork(first, second, chars1 ::: chars2, weight1 + weight2)
+    case (Leaf(char1, weight1), Fork(_, _, chars2, weight2)) => new Fork(first, second, char1 :: chars2, weight1 + weight2)
+    case (Fork(_, _, chars1, weight1), Leaf(char2, weight2)) => new Fork(first, second, char2 :: chars1, weight1 + weight2)
+    case (Fork(_, _, chars1, weight1), Fork(_, _, chars2, weight2)) => new Fork(first, second, chars1 ::: chars2, weight1 + weight2)
   }
 
-//    def sort(ele: Fork, list: List[CodeTree]): List[CodeTree] = list match {
-//      case Nil => List(ele)
-//      case (head: Leaf) :: tail =>
-//        if (ele.weight < head.weight) ele :: head :: tail
-//        else head :: sort(ele, tail)
-//    }
-//    if (trees.length < 3) trees
-//    else combine(sort(makeCodeTree(trees(0), trees(1)), trees.drop(2)))
-//  }
+  def combine(trees: List[CodeTree]): List[CodeTree] = {
+    if (trees.length < 2) trees
+    else sort(fork(trees(0), trees(1)), trees.drop(2))
+  }
 
   /**
    * This function will be called in the following way:
